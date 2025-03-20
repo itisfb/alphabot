@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telecomando AlphaBot</title>
+    <link rel="stylesheet" type="text/css" href="../static/telecomando.css">
+    <script>
+        function inviaComando(comando) {
+            // Feedback visivo sul pulsante cliccato
+            const pulsante = event.currentTarget;
+            const originalColor = pulsante.style.backgroundColor;
+            pulsante.style.backgroundColor = '#9b59b6'; // Colore di feedback
+            
+            fetch('/comando', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ comando: comando })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                // Ripristino colore originale dopo 300ms
+                setTimeout(() => {
+                    pulsante.style.backgroundColor = originalColor;
+                }, 300);
+            })
+            .catch(error => {
+                console.error('Errore:', error);
+                // Ripristino colore anche in caso di errore
+                setTimeout(() => {
+                    pulsante.style.backgroundColor = originalColor;
+                }, 300);
+            });
+        }
+        
+        // Funzione per controllare con la tastiera
+        document.addEventListener('keydown', function(event) {
+            switch(event.key) {
+                case 'ArrowUp':
+                    inviaComando('avanti');
+                    document.querySelector('button:nth-child(1)').click();
+                    break;
+                case 'ArrowDown':
+                    inviaComando('indietro');
+                    document.querySelector('.button-row:last-child button').click();
+                    break;
+                case 'ArrowLeft':
+                    inviaComando('sinistra');
+                    document.querySelector('.button-row:nth-child(2) button:first-child').click();
+                    break;
+                case 'ArrowRight':
+                    inviaComando('destra');
+                    document.querySelector('.button-row:nth-child(2) button:last-child').click();
+                    break;
+                case ' ':
+                    inviaComando('stop');
+                    document.querySelector('.button-row:nth-child(2) button:nth-child(2)').click();
+                    break;
+            }
+        });
+    </script>
+</head>
+<body>
+    <h1>Benvenuto, {{ username }}</h1>
+    <h2>Controlla AlphaBot</h2>
+
+    <div class="telecomando-container">
+        <div class="button-row">
+            <button onclick="inviaComando('avanti')">⬆️ Avanti</button>
+        </div>
+        <div class="button-row">
+            <button onclick="inviaComando('sinistra')">⬅️ Sinistra</button>
+            <button onclick="inviaComando('stop')">⏹️ Stop</button>
+            <button onclick="inviaComando('destra')">➡️ Destra</button>
+        </div>
+        <div class="button-row">
+            <button onclick="inviaComando('indietro')">⬇️ Indietro</button>
+        </div>
+    </div>
+
+    <a href="/logout">Logout</a>
+
+    <div class="footer">
+        <p>&copy; 2025 AlphaBot - Tutti i diritti riservati</p>
+    </div>
+</body>
+</html>
